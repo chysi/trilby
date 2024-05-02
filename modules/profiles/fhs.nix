@@ -20,6 +20,17 @@
     copyLinks $sw/bin /bin /usr/bin /usr/local/bin
     copyLinks $sw/lib /lib /lib64
   '';
+
+  environment = lib.mkMerge (
+    lib.optionals (lib.versionAtLeast trilby.release "24.05") [
+      {
+        ldso = "${pkgs.stdenv.cc.libc_lib}/lib64/ld-linux-x86-64.so.2";
+      }
+      (lib.optionalAttrs (trilby.hostSystem.cpu.name == "x86_64") {
+        ldso32 = "${pkgs.stdenv.cc.libc_lib}/lib/ld-linux-x86-64.so.2";
+      })
+    ]
+  );
 }
 // lib.optionalAttrs (lib.versionAtLeast trilby.release "24.05") {
   environment = {
